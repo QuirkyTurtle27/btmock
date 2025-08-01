@@ -1,7 +1,53 @@
+<<<<<<< HEAD
+#Maven
+=======
+>>>>>>> 923295fc7980d17e4ff1d1e6103379fec5950e88
 target/
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
+<<<<<<< HEAD
+release.properties
+.flattened-pom.xml
+
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+
+# IntelliJ
+.idea
+*.ipr
+*.iml
+*.iws
+
+# NetBeans
+nb-configuration.xml
+
+# Visual Studio Code
+.vscode
+.factorypath
+
+# OSX
+.DS_Store
+
+# Vim
+*.swp
+*.swo
+
+# patch
+*.orig
+*.rej
+
+# Local environment
+.env
+
+# Plugin directory
+/.quarkus/cli/plugins/
+# TLS Certificates
+.certs/
+=======
 pom.xml.next
 release.properties
 dependency-reduced-pom.xml
@@ -15,3 +61,4 @@ buildNumber.properties
 .project
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
+>>>>>>> 923295fc7980d17e4ff1d1e6103379fec5950e88

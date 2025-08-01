@@ -1,0 +1,47 @@
+.payment-box {
+    min-width: 320px;
+    max-width: 420px;
+}
+
+.placeholder-icon {
+    background: #f2f2f2;
+    border-radius: 6px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 13px;
+    color: #555;
+}
+
+.input-placeholder-icon {
+    position: absolute;
+    right: 16px;
+    top: 38px;
+    background: #e9ecef;
+    border-radius: 4px;
+    padding: 2px 7px;
+    font-size: 10px;
+    color: #666;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.payment-icons .input-placeholder-icon {
+    background: #fffbe6;
+    margin-right: 4px;
+    position: static;
+    top: unset;
+    right: unset;
+}
+.session-expiry {
+    line-height: 1.2;
+}
+.session-time {
+    font-weight: bold;
+}
+.figure-caption {
+    color: #4a4a4a;
+}
