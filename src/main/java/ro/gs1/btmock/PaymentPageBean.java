@@ -13,59 +13,70 @@ import ro.gs1.btmock.entity.OrderEntity;
 @ViewScoped
 public class PaymentPageBean implements Serializable {
 
-   private static final long serialVersionUID = 1L;
-   private static final Logger LOG = Logger.getLogger(PaymentPageBean.class);
+	private static final long serialVersionUID = 1L;
+	private static final Logger LOG = Logger.getLogger(PaymentPageBean.class);
 
-   private OrderEntity order;
-   private String orderId;
-   private String redirect = "localhost:8080/paymentfailed.xhtml";
+	private OrderEntity order;
+	private String orderId;
+	private String redirect = "localhost:8080/paymentfailed.xhtml";
 
-   public void actionViewInit() {
-      FacesContext facesContext = FacesContext.getCurrentInstance();
-      LOG.infof("ActionViewInit() - the amount is: %s", order);
-      orderId = facesContext.getExternalContext()
-         .getRequestParameterMap().get("order");
+	public void actionViewInit() {
+		FacesContext facesContext = FacesContext.getCurrentInstance();
+		LOG.infof("ActionViewInit() - the amount is: %s", order);
+		orderId = facesContext.getExternalContext().getRequestParameterMap().get("order");
 
-      if (orderId != null && !orderId.isBlank()) {
-         order = OrderEntity.find("orderId", orderId).firstResult();
-         LOG.infof("ActionViewInit() - the amount is: %s", order);
-      } else {
-         LOG.warn("ActionViewInit() - No order ID provided.");
-      }
-      redirect = redirect + "?order=" + orderId;
-   }
+		if (orderId != null && !orderId.isBlank()) {
+			order = OrderEntity.find("orderId", orderId).firstResult();
+			LOG.infof("ActionViewInit() - the amount is: %s", order);
+		} else {
+			LOG.warn("ActionViewInit() - No order ID provided.");
+		}
+		redirect = redirect + "?order=" + orderId;
+	}
 
-   public String getDescription() {
-      return order != null ? order.description : "";
-   }
+	public String getDescription() {
+		return order != null ? order.description : "";
+	}
 
-   public Long getAmount() {
-      return order != null ? order.amount : 0L;
-   }
+	public Long getAmount() {
+		return order != null ? order.amount : 0L;
+	}
 
-   public Integer getSessionTimeoutSecs() {
-      return order != null ? order.sessionTimeoutSecs : 0;
-   }
+	public Integer getSessionTimeoutSecs() {
+		return order != null ? order.sessionTimeoutSecs : 0;
+	}
 
-   public void setSessionTimeoutSecs(Integer time) {}
-   public void setDescription(String description) {}
-   public void setAmount(Long amount) {}
+	public void setSessionTimeoutSecs(Integer time) {
+	}
 
-   public OrderEntity getOrder() {
-      return order;
-   }
+	public void setDescription(String description) {
+	}
 
-   public void setOrder(OrderEntity order) {
-      this.order = order;
-   }
+	public void setAmount(Long amount) {
+	}
 
-   public String getOrderId() {
-      return orderId;
-   }
+	public OrderEntity getOrder() {
+		return order;
+	}
 
-   public void setOrderId(String orderId) {
-      this.orderId = orderId;
-   }
+	public void setOrder(OrderEntity order) {
+		this.order = order;
+	}
 
+	public String getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(String orderId) {
+		this.orderId = orderId;
+	}
+
+	public String getRedirect() {
+		return redirect;
+	}
+
+	public void setRedirect(String redirect) {
+		this.redirect = redirect;
+	}
 
 }
