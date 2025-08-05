@@ -1,9 +1,11 @@
 package ro.gs1.btmock;
 
+import java.io.IOException;
 import java.io.Serializable;
 
 import org.jboss.logging.Logger;
 
+import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
@@ -18,7 +20,7 @@ public class PaymentPageBean implements Serializable {
 
 	private OrderEntity order;
 	private String orderId;
-	private String redirect = "localhost:8080/paymentfailed.xhtml";
+	private String redirect = "/paymentfailed.xhtml";
 
 	public void actionViewInit() {
 		FacesContext facesContext = FacesContext.getCurrentInstance();
@@ -32,6 +34,17 @@ public class PaymentPageBean implements Serializable {
 			LOG.warn("ActionViewInit() - No order ID provided.");
 		}
 		redirect = redirect + "?order=" + orderId;
+	}
+
+	public void actionPay() {
+		try {
+			LOG.errorf("processPayment(): Payment failed for orderId=%s", orderId);
+            FacesContext context = FacesContext.getCurrentInstance();
+            ExternalContext ext = context.getExternalContext();
+            ext.redirect(ext.getRequestContextPath() + redirect + "?order=" + orderId);
+        } catch (IOException e) {
+        	LOG.error("processPayment(): Exception while redirecting to paymentfailed.xhtml", e);
+        }
 	}
 
 	public String getDescription() {

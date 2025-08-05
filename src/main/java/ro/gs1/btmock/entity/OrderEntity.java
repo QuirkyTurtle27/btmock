@@ -36,6 +36,8 @@ public class OrderEntity extends PanacheMongoEntity {
 
    public String bindingId;
 
+   public Integer cardNumber;
+
    public Integer sessionTimeoutSecs;
 
    public String expirationDate;
