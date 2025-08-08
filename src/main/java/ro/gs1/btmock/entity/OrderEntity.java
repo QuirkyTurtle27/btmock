@@ -14,9 +14,9 @@ public class OrderEntity extends PanacheMongoEntity {
 
    public String userName;
 
-   public String password; // don't store this in production
+   public String password;
 
-   public Long amount; // value in minor units (e.g., bani)
+   public Long amount;
 
    public Integer currency;
 

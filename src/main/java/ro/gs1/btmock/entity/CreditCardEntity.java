@@ -9,13 +9,15 @@ public class CreditCardEntity extends PanacheMongoEntity {
     public String cardNumber;
     public String expiryDate;
     public String securityCode;
+    public String nameOnCard;
 
     public CreditCardEntity() {
     }
 
-    public CreditCardEntity(String cardNumber, String expiryDate, String securityCode) {
+    public CreditCardEntity(String cardNumber, String expiryDate, String securityCode, String nameOnCard) {
         this.cardNumber = cardNumber;
         this.expiryDate = expiryDate;
         this.securityCode = securityCode;
+        this.nameOnCard = nameOnCard;
     }
 }
