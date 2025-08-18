@@ -1,4 +1,4 @@
-package ro.gs1.btmock.beans;
+package ro.gs1.btmock.dofunctions;
 
 import java.util.HashMap;
 import java.util.Map;

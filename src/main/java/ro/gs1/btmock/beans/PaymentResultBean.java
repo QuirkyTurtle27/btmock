@@ -1,4 +1,4 @@
-package ro.gs1.btmock;
+package ro.gs1.btmock.beans;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -37,8 +37,8 @@ public class PaymentResultBean implements Serializable {
 		setDate(now);
 	}
 
-	public Integer getCardNumber() {
-		return order != null ? order.cardNumber : 0;
+	public String getCardNumber() {
+		return order != null ? order.cardMaskedPan : "";
 	}
 
 	public void setCardNumber() {}

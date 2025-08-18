@@ -1,4 +1,4 @@
-package ro.gs1.btmock;
+package ro.gs1.btmock.beans;
 
 import java.io.IOException;
 import java.io.Serializable;
