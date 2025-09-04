@@ -9,7 +9,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: gs1dev
       MONGO_INITDB_ROOT_PASSWORD: admin
     volumes:
-      - /home/mateigrigoras/proiecte/btpay/database:/data/db
+      - /home/mateigrigoras/proiecte/btpay/databases:/data/db
     healthcheck:
       test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ ping: 1 })"]
       interval: 5s
