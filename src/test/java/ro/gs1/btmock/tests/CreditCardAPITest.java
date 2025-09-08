@@ -1,5 +1,3 @@
-//package org.acme;
-//
 //import io.quarkus.test.junit.QuarkusTest;
 //import jakarta.ws.rs.core.MediaType;
 //import org.jboss.logging.Logger;
