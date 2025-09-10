@@ -1,5 +1,7 @@
 package ro.gs1.btmock.entity;
 
+
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +35,7 @@ public class OrderEntity extends PanacheMongoEntity {
     // === Status lifecycle ===
     public String status = "CREATED";
     public long createdAt = System.currentTimeMillis();
+    public Date creationDate;
 
     // === Extended status ===
     public Integer orderStatus;
@@ -78,9 +81,6 @@ public class OrderEntity extends PanacheMongoEntity {
     public String bankName;
     public String bankCountryCode;
     public String bankCountryName;
-
-    // chargeback flag
-    public Boolean chargeback;
 
     // refunds history (list of refund objects)
     public List<Map<String, Object>> refunds;

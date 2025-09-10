@@ -41,14 +41,14 @@
 
          <!-- Card Info -->
          <p:panel header="Informații card" styleClass="mt-4" toggleable="false">
-            <p:outputLabel value="Număr card: #{paymentResultBean.maskedCardNumber}" styleClass="d-block mb-2" />
-            <p:outputLabel value="Data expirare: #{paymentResultBean.cardExpiry}" styleClass="d-block mb-2" />
+            <p:outputLabel value="Număr card: #{paymentResultBean.cardMaskedPan}" styleClass="d-block mb-2" />
+            <p:outputLabel value="Data expirare: #{paymentResultBean.cardExpiration}" styleClass="d-block mb-2" />
             <p:outputLabel value="Nume de pe card: #{paymentResultBean.cardholderName}" styleClass="d-block mb-2" />
          </p:panel>
 
          <!-- Order Description -->
          <p:panel header="Descriere comandă" styleClass="mt-4" toggleable="false">
-            <p:outputLabel value="#{paymentResultBean.orderDescription}" />
+            <p:outputLabel value="#{paymentResultBean.description}" />
          </p:panel>
       </p:panel>
    </h:form>

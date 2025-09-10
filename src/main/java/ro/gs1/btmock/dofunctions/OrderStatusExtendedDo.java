@@ -27,12 +27,10 @@ public class OrderStatusExtendedDo {
             @FormParam("orderId") String orderId,
             @FormParam("orderNumber") String orderNumber
     ) {
-        // --- Minimal request validation (one of orderId/orderNumber must be present)
         if ((orderId == null || orderId.isBlank()) && (orderNumber == null || orderNumber.isBlank())) {
             return okError("1", "OrderId or orderNumber is required");
         }
 
-        // --- Locate the order (orderId has priority)
         OrderEntity order = null;
         if (orderId != null && !orderId.isBlank()) {
             order = OrderEntity.find("orderId", orderId).firstResult();
@@ -44,124 +42,129 @@ public class OrderStatusExtendedDo {
             return okError("6", "Order not found");
         }
 
-        // === Build response per 6.7.1 (all fields, mandatory + optional) ===
+     // === Build response per examples (grouping & order) ===
         Map<String, Object> resp = new LinkedHashMap<>();
 
-        // Transport envelope
-        resp.put("errorCode", "0");                     // 0 = no system error
+        // 1) envelope + core (in the same order as examples)
+        resp.put("errorCode", "0");
         resp.put("errorMessage", "Success");
 
-        // Core
-        resp.put("orderNumber", safe(order.orderNumber));
-        resp.put("orderStatus", orDefault(order.orderStatus, 0));    // CREATED/DEPOSITED/DECLINED etc.
-        resp.put("actionCode", orDefault(order.actionCode, 0));
-        resp.put("actionCodeDescription", safe(order.actionCodeDescription));
-        resp.put("amount", orDefault(order.amount, 0L));             // minor units
+        putIfNotNull(resp, "orderNumber", order.orderNumber);
+        putIfNotNull(resp, "orderStatus", order.orderStatus);
+        putIfNotNull(resp, "actionCode", order.actionCode);
+        putIfNotNull(resp, "actionCodeDescription", order.actionCodeDescription);
+        putIfNotNull(resp, "amount", order.amount);
         if (order.currency != null) resp.put("currency", String.valueOf(order.currency));
-        // "date" = auth date/time or createdAt if auth missing (epoch millis)
         resp.put("date", order.authDateTime != null ? order.authDateTime : order.createdAt);
-        if (order.description != null) resp.put("orderDescription", order.description);
-        if (order.ip != null) resp.put("ip", order.ip);
+        putIfNotNull(resp, "orderDescription", order.description);
+        putIfNotNull(resp, "ip", order.ip);
 
-        // cardAuthInfo (only meaningful for paid/attempted)
-        Map<String, Object> cardAuthInfo = new LinkedHashMap<>();
-        putIfNotNull(cardAuthInfo, "pan", order.cardMaskedPan);
-        putIfNotNull(cardAuthInfo, "expiration", order.cardExpiration);     // YYYYMM
-        putIfNotNull(cardAuthInfo, "cardholderName", order.cardholderName);
-        putIfNotNull(cardAuthInfo, "approvalCode", order.approvalCode);
-
-        // secureAuthInfo (ECI + optional 3DS array)
-        Map<String, Object> secureAuthInfo = new LinkedHashMap<>();
-        if (order.eci != null) secureAuthInfo.put("eci", order.eci);
-        // Example 3DS list: read from jsonParams if you store them there; otherwise omit
-        // If you saved CAVV/XID in jsonParams:
-        List<Map<String, Object>> threeDSInfo = new ArrayList<>();
-        Object cavv = getJson(order, "cavv");
-        Object xid  = getJson(order, "xid");
-        if (cavv != null || xid != null) {
-            Map<String, Object> item = new LinkedHashMap<>();
-            if (cavv != null) item.put("cavv", cavv.toString());
-            if (xid  != null) item.put("xid",  xid.toString());
-            threeDSInfo.add(item);
+        if (order.merchantOrderParams != null && !order.merchantOrderParams.isEmpty()) {
+            resp.put("merchantOrderParams", order.merchantOrderParams);
         }
-        if (!threeDSInfo.isEmpty()) secureAuthInfo.put("threeDSInfo", threeDSInfo);
-        if (!secureAuthInfo.isEmpty()) cardAuthInfo.put("secureAuthInfo", secureAuthInfo);
-        if (!cardAuthInfo.isEmpty()) resp.put("cardAuthInfo", cardAuthInfo);
 
-        // bindingInfo (COF/network token), fill from entity if present
-        Map<String, Object> bindingInfo = new LinkedHashMap<>();
-        putIfNotNull(bindingInfo, "clientId", order.clientId);
-        putIfNotNull(bindingInfo, "bindingId", order.bindingId);
-        // Optional brand artwork / BIN / last4 if you store them:
-        putIfNotNull(bindingInfo, "cardArtUrl",  strJson(order, "cardArtUrl"));
-        putIfNotNull(bindingInfo, "cardArtPicture", strJson(order, "cardArtPicture"));
-        putIfNotNull(bindingInfo, "cardArtForegroundColor", strJson(order, "cardArtForegroundColor"));
-        putIfNotNull(bindingInfo, "bin", strJson(order, "bin"));
-        putIfNotNull(bindingInfo, "panLastFour", strJson(order, "panLastFour"));
-        if (!bindingInfo.isEmpty()) resp.put("bindingInfo", bindingInfo);
+        {
+            List<Map<String, Object>> attributes = new ArrayList<>();
+            String mdOrder = (order.attributeMdOrder != null) ? order.attributeMdOrder : order.orderId;
+            attributes.add(Map.of("name", "mdOrder", "value", mdOrder));
+            resp.put("attributes", attributes);
+        }
 
-        // merchantOrderParams[] (name/value list). If you store timings/etc. in jsonParams, project them here.
-        List<Map<String, Object>> merchantOrderParams = new ArrayList<>();
-        addNameValueIfPresent(merchantOrderParams, "paymentTime", strJson(order, "paymentTime"));
-        addNameValueIfPresent(merchantOrderParams, "numberTime",  strJson(order, "numberTime"));
-        if (!merchantOrderParams.isEmpty()) resp.put("merchantOrderParams", merchantOrderParams);
+        {
+            Map<String, Object> cardAuthInfo = new LinkedHashMap<>();
+            putIfNotNull(cardAuthInfo, "expiration", order.cardExpiration);
+            putIfNotNull(cardAuthInfo, "cardholderName", order.cardholderName);
+            putIfNotNull(cardAuthInfo, "approvalCode", order.approvalCode);
+            putIfNotNull(cardAuthInfo, "pan", order.cardMaskedPan);
+            if (!cardAuthInfo.isEmpty()) {
+                resp.put("cardAuthInfo", cardAuthInfo);
+            }
+        }
 
-        // attributes[] (must include mdOrder)
-        List<Map<String, Object>> attributes = new ArrayList<>();
-        attributes.add(Map.of("name", "mdOrder", "value", safe(orDefault(order.attributeMdOrder, order.orderId))));
-        // add any other attributes you keep in jsonParams, e.g. installments, loyalty, etc.
-        addAttributeIfPresent(attributes, "installment", strJson(order, "installment"));
-        if (!attributes.isEmpty()) resp.put("attributes", attributes);
+        // 5) auth fields (after cardAuthInfo, exactly like examples)
+        putIfNotNull(resp, "authDateTime", order.authDateTime);
+        putIfNotNull(resp, "terminalId", order.terminalId);
+        putIfNotNull(resp, "authRefNum", order.authRefNum);
 
-        // audit
-        if (order.authDateTime != null) resp.put("authDateTime", order.authDateTime);
-        if (order.authRefNum != null)  resp.put("authRefNum", order.authRefNum);
-        if (order.terminalId != null)  resp.put("terminalId", order.terminalId);
+        // 6) paymentAmountInfo (paymentState, approvedAmount, depositedAmount, refundedAmount)
+        {
+            Map<String, Object> paymentAmountInfo = new LinkedHashMap<>();
+            putIfNotNull(paymentAmountInfo, "paymentState", order.paymentState);
+            putIfNotNull(paymentAmountInfo, "approvedAmount", order.paymentApprovedAmount);
+            putIfNotNull(paymentAmountInfo, "depositedAmount", order.paymentDepositedAmount);
+            putIfNotNull(paymentAmountInfo, "refundedAmount", order.paymentRefundedAmount);
+            if (!paymentAmountInfo.isEmpty()) {
+                resp.put("paymentAmountInfo", paymentAmountInfo);
+            }
+        }
 
-        // paymentAmountInfo
-        Map<String, Object> paymentAmountInfo = new LinkedHashMap<>();
-        putIfNotNull(paymentAmountInfo, "approvedAmount", order.paymentApprovedAmount);
-        putIfNotNull(paymentAmountInfo, "depositedAmount", order.paymentDepositedAmount);
-        putIfNotNull(paymentAmountInfo, "refundedAmount", order.paymentRefundedAmount);
-        putIfNotNull(paymentAmountInfo, "paymentState", order.paymentState);
-        if (!paymentAmountInfo.isEmpty()) resp.put("paymentAmountInfo", paymentAmountInfo);
+        // 7) bankInfo (bankName, bankCountryCode, bankCountryName)
+        {
+            Map<String, Object> bankInfo = new LinkedHashMap<>();
+            putIfNotNull(bankInfo, "bankName", order.bankName);
+            putIfNotNull(bankInfo, "bankCountryCode", order.bankCountryCode);
+            putIfNotNull(bankInfo, "bankCountryName", order.bankCountryName);
+            if (!bankInfo.isEmpty()) {
+                resp.put("bankInfo", bankInfo);
+            }
+        }
 
-        // bankInfo (optional – fill if you keep it)
-        Map<String, Object> bankInfo = new LinkedHashMap<>();
-        putIfNotNull(bankInfo, "bankName",         strJson(order, "bankName"));
-        putIfNotNull(bankInfo, "bankCountryCode", strJson(order, "bankCountryCode"));
-        putIfNotNull(bankInfo, "bankCountryName", strJson(order, "bankCountryName"));
-        if (!bankInfo.isEmpty()) resp.put("bankInfo", bankInfo);
-
-        // orderBundle (echo back the structure your order holds)
+        // 8) orderBundle (orderCreationDate + customerDetails.email/phone + deliveryInfo + billingInfo)
         if (order.orderBundle != null) {
-            // If you store creation date as millis in extended response, include that; otherwise omit or convert.
             Map<String, Object> bundle = new LinkedHashMap<>();
-            Object creationMs = getJson(order, "orderCreationDateMs");
+
+            // orderCreationDate in examples is a long (epoch millis). If you store it in jsonParams:
+            Object creationMs = getJson(order, "orderCreationDate");
             if (creationMs instanceof Number) {
                 bundle.put("orderCreationDate", ((Number) creationMs).longValue());
             }
-            // You can serialize the existing object directly if it’s Jackson-friendly:
-            // If not, manually map the parts you need as in previous examples.
-            // For simplicity, just put the whole object (Jackson will serialize nested fields).
-            bundle.put("customerDetails", order.orderBundle.customerDetails);
-            resp.put("orderBundle", bundle);
+
+            if (order.orderBundle.customerDetails != null) {
+                Map<String, Object> cust = new LinkedHashMap<>();
+                putIfNotNull(cust, "email", order.orderBundle.customerDetails.email);
+                putIfNotNull(cust, "phone", order.orderBundle.customerDetails.phone);
+
+                // deliveryInfo
+                if (order.orderBundle.customerDetails.deliveryInfo != null) {
+                    Map<String, Object> delivery = new LinkedHashMap<>();
+                    putIfNotNull(delivery, "deliveryType", order.orderBundle.customerDetails.deliveryInfo.deliveryType);
+                    putIfNotNull(delivery, "country",     order.orderBundle.customerDetails.deliveryInfo.country);
+                    putIfNotNull(delivery, "city",        order.orderBundle.customerDetails.deliveryInfo.city);
+                    putIfNotNull(delivery, "postAddress", order.orderBundle.customerDetails.deliveryInfo.postAddress);
+                    putIfNotNull(delivery, "postalCode",  order.orderBundle.customerDetails.deliveryInfo.postalCode);
+                    if (!delivery.isEmpty()) {
+                        cust.put("deliveryInfo", delivery);
+                    }
+                }
+
+                // billingInfo
+                if (order.orderBundle.customerDetails.billingInfo != null) {
+                    Map<String, Object> billing = new LinkedHashMap<>();
+                    putIfNotNull(billing, "country",      order.orderBundle.customerDetails.billingInfo.country);
+                    putIfNotNull(billing, "city",         order.orderBundle.customerDetails.billingInfo.city);
+                    putIfNotNull(billing, "postAddress",  order.orderBundle.customerDetails.billingInfo.postAddress);
+                    putIfNotNull(billing, "postAddress2", order.orderBundle.customerDetails.billingInfo.postAddress2);
+                    putIfNotNull(billing, "postAddress3", order.orderBundle.customerDetails.billingInfo.postAddress3);
+                    putIfNotNull(billing, "postalCode",   order.orderBundle.customerDetails.billingInfo.postalCode);
+                    if (!billing.isEmpty()) {
+                        cust.put("billingInfo", billing);
+                    }
+                }
+
+                if (!cust.isEmpty()) {
+                    bundle.put("customerDetails", cust);
+                }
+            }
+            if (!bundle.isEmpty()) {
+                resp.put("orderBundle", bundle);
+            }
         }
 
-        // chargeback flag (if you keep it; default false)
-        Object chargeback = getJson(order, "chargeback");
-        resp.put("chargeback", chargeback instanceof Boolean ? (Boolean) chargeback : Boolean.FALSE);
-
-        // refunds[] (history list) – if you keep them in jsonParams or a dedicated field
-        Object refundsObj = getJson(order, "refunds");
-        if (refundsObj instanceof List) {
-            // assume already list of map-like objects
-            resp.put("refunds", refundsObj);
-        } else {
-            resp.put("refunds", Collections.emptyList());
-        }
+        // (Optional blocks you can add before returning, if you keep them: bindingInfo, chargeback, refunds)
+        // But your three examples don’t include them, so we keep the output identical in grouping.
 
         return Response.ok(resp).build();
+
     }
 
     // -------- helpers --------
@@ -170,20 +173,8 @@ public class OrderStatusExtendedDo {
         return Response.ok(Map.of("errorCode", code, "errorMessage", message)).build();
     }
 
-    private static <T> T orDefault(T v, T def) {
-        return v != null ? v : def;
-    }
-
-    private static String safe(String v) {
-        return v == null ? "" : v;
-    }
-
     private static void putIfNotNull(Map<String, Object> m, String k, Object v) {
         if (v != null) m.put(k, v);
-    }
-
-    private static void addNameValueIfPresent(List<Map<String, Object>> list, String name, String value) {
-        if (value != null) list.add(Map.of("name", name, "value", value));
     }
 
     private static void addAttributeIfPresent(List<Map<String, Object>> list, String name, String value) {

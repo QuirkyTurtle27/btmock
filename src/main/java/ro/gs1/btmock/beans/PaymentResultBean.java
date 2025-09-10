@@ -37,11 +37,19 @@ public class PaymentResultBean implements Serializable {
 		setDate(now);
 	}
 
-	public String getCardNumber() {
+	public String getCardMaskedPan() {
 		return order != null ? order.cardMaskedPan : "";
 	}
 
-	public void setCardNumber() {}
+	public void setCardMaskedPan() {}
+
+	public String getCardExpiration() {
+		return order != null ? order.cardExpiration : "";
+	}
+
+	public String getCardholderName() {
+		return order != null ? order.cardholderName : "";
+		}
 
 	public Long getAmount() {
 		return order != null ? order.amount : 0L;

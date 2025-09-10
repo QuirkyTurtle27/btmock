@@ -21,6 +21,7 @@ public class PaymentPageBean implements Serializable {
 	private OrderEntity order;
 	private String orderId;
 	private String redirect = "/paymentfailed.xhtml";
+	private String cardNumber;
 
 	public void actionViewInit() {
 		FacesContext facesContext = FacesContext.getCurrentInstance();
@@ -56,7 +57,7 @@ public class PaymentPageBean implements Serializable {
 	}
 
 	public Integer getSessionTimeoutSecs() {
-		return order != null ? order.sessionTimeoutSecs : 0;
+		return order != null ? order.sessionTimeoutSecs : 1200;
 	}
 
 	public void setSessionTimeoutSecs(Integer time) {
@@ -90,6 +91,14 @@ public class PaymentPageBean implements Serializable {
 
 	public void setRedirect(String redirect) {
 		this.redirect = redirect;
+	}
+
+	public String getCardNumber() {
+		return cardNumber;
+	}
+
+	public void setCardNumber(String cardNumber) {
+		this.cardNumber = cardNumber;
 	}
 
 }
