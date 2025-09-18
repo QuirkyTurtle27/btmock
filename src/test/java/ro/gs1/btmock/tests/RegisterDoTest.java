@@ -1,4 +1,4 @@
-package org.acme;
+package ro.gs1.btmock.tests;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.notNullValue;
@@ -15,25 +15,23 @@ public class RegisterDoTest {
     public void testRegisterDoWithAllFields() {
         String url = "/payment/rest/register.do";
 
-        // Replace with your sandbox credentials
         String userName = "your_test_username";
         String password = "your_test_password";
 
-        // Required core fields
-        String orderNumber = "TEST-ORDER-002";
-        String amount = "1200"; // 12.00 RON in bani
-        String currency = "946"; // RON
+        String orderNumber = "TEST-ORDER-" + java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+        String amount = "1200";
+        String currency = "946";
         String returnUrl = "https://yourdomain.ro/finish";
         String description = "Test BT Full Transaction";
 
         // Optional fields
         String language = "ro";
         String pageView = "DESKTOP";
-        String childId = "submerchant_test"; // Required only for aggregators
-        String clientId = "client-123"; // Required only for COF
-        String bindingId = "00000000-0000-0000-0000-000000000000"; // for COF
+        String childId = "submerchant_test";
+        String clientId = "client-123";
+        String bindingId = "00000000-0000-0000-0000-000000000000";
         String sessionTimeoutSecs = "600";
-        String expirationDate = "2025-12-31T23:59:59"; // Ignored if sessionTimeoutSecs is set
+        String expirationDate = "2025-12-31T23:59:59";
 
         String jsonParams = """
             {"campaignId":"CAMP-001","source":"testSuite"}

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+<ui:composition template="/template/layout.xhtml">
+    <ui:define name="title">Orders</ui:define>
+
+    <ui:define name="content">
+        <h:form id="ordersForm">
+            <h2>Stored Orders</h2>
+            <p:dataTable id="ordersTable"
+                         value="#{indexPageBean.orders}"
+                         var="order"
+                         stripedRows="true"
+                         responsiveLayout="scroll">
+                <p:column headerText="Order ID">
+                    <h:outputText value="#{order.orderId}" />
+                </p:column>
+                <p:column headerText="Order Number">
+                    <h:outputText value="#{order.orderNumber}" />
+                </p:column>
+                <p:column headerText="Amount">
+                    <h:outputText value="#{order.amount}" />
+                </p:column>
+                <p:column headerText="Client Email">
+                    <h:outputText value="#{order.status}" />
+                </p:column>
+                <p:column headerText="Description">
+                    <h:outputText value="#{order.description}" />
+                </p:column>
+            </p:dataTable>
+        </h:form>
+    </ui:define>
+</ui:composition>
+</html>
