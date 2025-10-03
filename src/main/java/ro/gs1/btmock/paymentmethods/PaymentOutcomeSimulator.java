@@ -41,25 +41,21 @@ public class PaymentOutcomeSimulator {
     // ---------- Core logic ----------
 
     private boolean applyOutcome(OrderEntity order, String pan, String expiryRaw, String cvv, String cardholderName) {
-        // 1) Determine outcome from PAN last-4 using your enum
         CardOutcomeEnum outcome = CardOutcomeEnum.fromPan(pan);
 
-        // 2) If enum says SUCCESS, run additional realistic validation to possibly turn it into a decline
         if (outcome == CardOutcomeEnum.SUCCESS) {
-            // CVV must be 3-4 digits
             if (cvv == null || !cvv.matches("\\d{3,4}")) {
-                outcome = CardOutcomeEnum.INVALID_CVV; // 871
+                outcome = CardOutcomeEnum.INVALID_CVV;
             } else {
-                String normalizedExpiry = normalizeExpiry(expiryRaw); // YYYYMM or null if invalid format
+                String normalizedExpiry = normalizeExpiry(expiryRaw);
                 if (normalizedExpiry == null) {
-                    outcome = CardOutcomeEnum.INVALID_EXPIRY; // 861
+                    outcome = CardOutcomeEnum.INVALID_EXPIRY;
                 } else if (isExpired(normalizedExpiry)) {
-                    outcome = CardOutcomeEnum.CARD_EXPIRED; // 906
+                    outcome = CardOutcomeEnum.CARD_EXPIRED;
                 }
             }
         }
 
-        // 3) Update OrderEntity extended-status fields
         setCommonCardFields(order, pan, expiryRaw, cardholderName);
 
         if (outcome == CardOutcomeEnum.SUCCESS) {

@@ -37,7 +37,12 @@ public class PaymentResultBean implements Serializable {
 		setDate(now);
 	}
 
+	public void redirectToMerchant() {
+
+	}
+
 	public String getCardMaskedPan() {
+		LOG.debugf("Functioneaza probabil");
 		return order != null ? order.cardMaskedPan : "";
 	}
 

@@ -1,56 +1,60 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://xmlns.jcp.org/jsf/html"
-   xmlns:f="http://xmlns.jcp.org/jsf/core" xmlns:p="http://primefaces.org/ui">
+   xmlns:f="http://xmlns.jcp.org/jsf/core" xmlns:p="http://primefaces.org/ui"
+   xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
 <f:metadata>
-   <f:viewAction action="#{paymentPageBean.actionViewInit}" onPostback="false" />
+   <f:viewAction action="#{paymentResultBean.actionViewInit}" onPostback="false" />
 </f:metadata>
+<ui:composition template="/template/layout.xhtml">
 
-<h:head>
-   <title>Plata eșuată</title>
-   <meta http-equiv="refresh" content="10;url=#{paymentResultBean.merchantReturnUrl}" />
-   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-</h:head>
+   <ui:define name="title">Plata eșuată</ui:define>
 
-<h:body style="background-color: #f9f9f9;">
-   <h:form styleClass="d-flex justify-content-center mt-5">
-      <p:panel styleClass="col-md-6 p-4 shadow-sm rounded" style="background-color: white;">
-         <!-- Error Icon and Message -->
-         <div class="text-center mb-3">
-            <i class="fas fa-times-circle text-danger fa-3x mb-2"></i>
-            <p:outputLabel value="Plata nu a fost acceptată" styleClass="fw-bold text-danger fs-5 d-block" />
-            <p:outputLabel value="Invalid expiry date" styleClass="text-danger fw-semibold" />
-         </div>
+   <ui:define name="lasthead">
+      <meta http-equiv="refresh" content="10;url=#{paymentResultBean.merchantReturnUrl}" />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
-         <!-- Button -->
-         <div class="text-center my-3">
-            <p:commandButton value="&lt;- Către comerciant" action="#{paymentResultBean.redirectToMerchant}"
-               ajax="false" styleClass="btn btn-primary" />
-         </div>
+   </ui:define>
 
-         <!-- Transaction Info -->
-         <p:panel header="Detalii tranzacție" styleClass="mt-4" toggleable="false">
-            <p:outputLabel value="Nume comerciant: Gs1 Data Systems" styleClass="d-block mb-2" />
-            <p:outputLabel value="Data: #{paymentResultBean.date}" styleClass="d-block mb-2">
-               <f:convertDateTime pattern="HH" />
-            </p:outputLabel>
-            <p:outputLabel value="Ora: #{paymentResultBean.date}" styleClass="d-block mb-2" />
-            <p:outputLabel value="Suma de plată: #{paymentResultBean.amount} RON" styleClass="d-block mb-2" />
+   <ui:define name="content">
+
+
+      <h:form styleClass="d-flex justify-content-center mt-5">
+         <p:panel styleClass="col-md-6 p-4 shadow-sm rounded" style="background-color: white;">
+            <div class="text-center mb-3">
+               <i class="fas fa-times-circle text-danger fa-3x mb-2"></i>
+               <p:outputLabel value="Plata nu a fost acceptată" styleClass="fw-bold text-danger fs-5 d-block" />
+               <p:outputLabel value="Invalid expiry date" styleClass="text-danger fw-semibold" />
+            </div>
+
+            <div class="text-center my-3">
+               <p:commandButton value="&lt;- Către comerciant" action="#{paymentResultBean.redirectToMerchant}"
+                  ajax="false" styleClass="btn btn-primary" />
+            </div>
+
+            <p:panel header="Detalii tranzacție" styleClass="mt-4" toggleable="false">
+               <p:outputLabel value="Nume comerciant: Gs1 Data Systems" styleClass="d-block mb-2" />
+               <p:outputLabel value="Data: #{paymentResultBean.date}" styleClass="d-block mb-2">
+                  <f:convertDateTime pattern="dd.MM.yyyy" />
+               </p:outputLabel>
+               <p:outputLabel value="Ora: #{paymentResultBean.date}" styleClass="d-block mb-2">
+                  <f:convertDateTime pattern="HH:mm" />
+               </p:outputLabel>
+               <p:outputLabel value="Suma de plată: #{paymentResultBean.amount} RON" styleClass="d-block mb-2" />
+            </p:panel>
+
+            <p:panel header="Informații card" styleClass="mt-4" toggleable="false">
+               <p:outputLabel value="Număr card: #{paymentResultBean.cardMaskedPan}" styleClass="d-block mb-2" />
+               <p:outputLabel value="Data expirare: #{paymentResultBean.cardExpiration}" styleClass="d-block mb-2" />
+               <p:outputLabel value="Nume de pe card: #{paymentResultBean.cardholderName}" styleClass="d-block mb-2" />
+            </p:panel>
+
+            <p:panel header="Descriere comandă" styleClass="mt-4" toggleable="false">
+               <p:outputLabel value="#{paymentResultBean.description}" />
+            </p:panel>
          </p:panel>
+      </h:form>
+   </ui:define>
 
-         <!-- Card Info -->
-         <p:panel header="Informații card" styleClass="mt-4" toggleable="false">
-            <p:outputLabel value="Număr card: #{paymentResultBean.cardMaskedPan}" styleClass="d-block mb-2" />
-            <p:outputLabel value="Data expirare: #{paymentResultBean.cardExpiration}" styleClass="d-block mb-2" />
-            <p:outputLabel value="Nume de pe card: #{paymentResultBean.cardholderName}" styleClass="d-block mb-2" />
-         </p:panel>
-
-         <!-- Order Description -->
-         <p:panel header="Descriere comandă" styleClass="mt-4" toggleable="false">
-            <p:outputLabel value="#{paymentResultBean.description}" />
-         </p:panel>
-      </p:panel>
-   </h:form>
-</h:body>
+</ui:composition>
 </html>
