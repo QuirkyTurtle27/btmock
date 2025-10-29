@@ -34,7 +34,6 @@
 	</lifecycle>
 	<factory>
 		<exception-handler-factory>org.primefaces.application.exceptionhandler.PrimeExceptionHandlerFactory</exception-handler-factory>
-		<lifecycle-factory>org.primefaces.clientwindow.PrimeClientWindowLifecycleFactory</lifecycle-factory>
 	</factory>
 	<render-kit>
 		<renderer>
