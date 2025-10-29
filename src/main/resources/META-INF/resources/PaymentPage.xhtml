@@ -10,11 +10,11 @@
 
    <ui:define name="lasthead">
       <script type="text/javascript">
-       remainingSeconds = #{paymentPageBean.sessionTimeoutSecs};
+       remainingSeconds = #{paymentPageBean.sessionTimeoutSeconds};
 </script>
       <h:outputScript name="/js/paymentPage.js" target="body" />
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-      <meta http-equiv="refresh" content="#{paymentPageBean.sessionTimeoutSecs};url=#{paymentPageBean.redirect}" />
+      <meta http-equiv="refresh" content="#{paymentPageBean.sessionTimeoutSeconds};url=#{paymentPageBean.redirect}" />
    </ui:define>
 
    <ui:define name="content">

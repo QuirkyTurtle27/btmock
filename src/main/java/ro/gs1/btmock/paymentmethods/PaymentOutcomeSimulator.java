@@ -105,20 +105,17 @@ public class PaymentOutcomeSimulator {
     private void applyDecline(OrderEntity order, CardOutcomeEnum outcome) {
         order.actionCode = outcome.getActionCode();
         order.actionCodeDescription = outcome.getDescription();
-        order.orderStatus = 6; // DECLINED
+        order.orderStatus = 6;
         order.status = "DECLINED";
 
-        // Declines have zeroed amounts / state
         order.paymentApprovedAmount = 0L;
         order.paymentDepositedAmount = 0L;
         order.paymentRefundedAmount = 0L;
         order.paymentState = "DECLINED";
 
-        // Approval/ECI empty
         order.approvalCode = "000000";
         order.eci = null;
 
-        // audit/attributes
         order.authDateTime = System.currentTimeMillis();
         order.authRefNum = "002311095612";
         if (order.attributeMdOrder == null) {
@@ -130,21 +127,18 @@ public class PaymentOutcomeSimulator {
     }
 
     private void setCommonCardFields(OrderEntity order, String pan, String expiryRaw, String cardholderName) {
-        order.cardMaskedPan = maskPan(pan);              // ****-masked pan
-        order.cardExpiration = normalizeExpiry(expiryRaw); // YYYYMM or null
+        order.cardMaskedPan = maskPan(pan);
+        order.cardExpiration = normalizeExpiry(expiryRaw);
         order.cardholderName = cardholderName != null ? cardholderName : order.cardholderName;
 
-        // Ensure mdOrder is in attributes bucket (the response builder will emit it)
         if (order.attributeMdOrder == null) {
             order.attributeMdOrder = order.orderId != null ? order.orderId : UUID.randomUUID().toString();
         }
-        // Keep createdAt if not set
         if (order.createdAt == 0L) order.createdAt = System.currentTimeMillis();
     }
 
     // ---------- Helpers ----------
 
-    /** Masks PAN as 6 + * + last4 (e.g., 411111******1111). */
     private String maskPan(String pan) {
         if (pan == null) return null;
         String digits = pan.replaceAll("\\s", "");
@@ -158,10 +152,6 @@ public class PaymentOutcomeSimulator {
         return sb.toString();
     }
 
-    /**
-     * Accepts "MM/YY", "MMYY", or "YYYYMM".
-     * Returns normalized "YYYYMM" or null if invalid format.
-     */
     private String normalizeExpiry(String raw) {
         if (raw == null || raw.isBlank()) return null;
         String s = raw.replaceAll("[^0-9]", "");
@@ -171,14 +161,12 @@ public class PaymentOutcomeSimulator {
             if (!mm.matches("0[1-9]|1[0-2]")) return null;
             int year = 2000 + Integer.parseInt(yy);
             return year + mm;
-        } else if (s.length() == 6) { // MMYYYY or YYYYMM
+        } else if (s.length() == 6) {
             String a = s.substring(0, 2);
             String b = s.substring(2, 6);
             if (a.matches("0[1-9]|1[0-2]")) {
-                // MMYYYY -> YYYYMM
                 return b + a;
             } else {
-                // assume YYYYMM
                 String mm = s.substring(4, 6);
                 if (!mm.matches("0[1-9]|1[0-2]")) return null;
                 return s;
@@ -187,7 +175,6 @@ public class PaymentOutcomeSimulator {
         return null;
         }
 
-    /** True if the YYYYMM expiry is strictly before current month. */
     private boolean isExpired(String yyyymm) {
         if (yyyymm == null || !yyyymm.matches("\\d{6}")) return true;
         int year = Integer.parseInt(yyyymm.substring(0, 4));

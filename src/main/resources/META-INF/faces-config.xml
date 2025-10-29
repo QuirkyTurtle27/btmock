@@ -31,7 +31,6 @@
 	<lifecycle>
 		<phase-listener>org.primefaces.component.lifecycle.LifecyclePhaseListener</phase-listener>
 		<phase-listener>org.primefaces.extensions.application.PrimeFacesResourceProcessor</phase-listener>
-
 	</lifecycle>
 	<factory>
 		<exception-handler-factory>org.primefaces.application.exceptionhandler.PrimeExceptionHandlerFactory</exception-handler-factory>

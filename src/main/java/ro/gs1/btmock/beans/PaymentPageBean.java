@@ -5,21 +5,19 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.jboss.logging.Logger;
-import org.primefaces.component.selectonemenu.SelectOneMenu;
 
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.AjaxBehaviorEvent;
-import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import ro.gs1.btmock.entity.CreditCardEntity;
 import ro.gs1.btmock.entity.OrderEntity;
-import ro.gs1.btmock.enums.CardOutcomeEnum;
 import ro.gs1.btmock.paymentmethods.PaymentOutcomeSimulator;
 
 @Named
-@ViewScoped
+@RequestScoped
 public class PaymentPageBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -35,19 +33,35 @@ public class PaymentPageBean implements Serializable {
 	private String selectedTestCard;
 	private List<CreditCardEntity> allCards;
 	private CreditCardEntity selectedCard;
+	private Integer sessionTimeoutSeconds;
 
 	@Inject
 	private PaymentOutcomeSimulator payBean;
 
 	public void actionViewInit() {
+		LOG.info("actionViewInit() - Start");
 		FacesContext facesContext = FacesContext.getCurrentInstance();
 		orderId = facesContext.getExternalContext().getRequestParameterMap().get("order");
-
 		if (orderId != null && !orderId.isBlank()) {
 			order = OrderEntity.find("orderId", orderId).firstResult();
-			LOG.infof("ActionViewInit() - the orderId: %s", order);
+			LOG.infof("actionViewInit() - the orderId: %s", order);
 		} else {
-			LOG.warn("ActionViewInit() - No order ID provided.");
+			LOG.warn("actionViewInit() - No order ID provided.");
+			return;
+		}
+		if (System.currentTimeMillis() - order.createdAt < order.sessionTimeoutSecs * 1000) {
+			sessionTimeoutSeconds = Math.toIntExact(order.sessionTimeoutSecs - (System.currentTimeMillis() - order.createdAt) / 1000);
+			LOG.infof("actionview() - order timeout %s", sessionTimeoutSeconds);
+		} else {
+			try {
+				payBean.simulateByOrderId(orderId, cardNumber, cardExpiration, cardSecurity, cardholderName);
+				LOG.errorf("processPayment(): Payment failed for orderId=%s", orderId);
+				FacesContext context = FacesContext.getCurrentInstance();
+				ExternalContext ext = context.getExternalContext();
+				ext.redirect(ext.getRequestContextPath() + "/paymentfailed.xhtml?order=" + orderId);
+			} catch (IOException e) {
+				LOG.error("processPayment(): Exception while redirecting to paymentfailed.xhtml", e);
+			}
 		}
 
 		allCards = CreditCardEntity.listAll();
@@ -95,11 +109,11 @@ public class PaymentPageBean implements Serializable {
 		return order != null ? order.amount : 0L;
 	}
 
-	public Integer getSessionTimeoutSecs() {
-		return order != null ? order.sessionTimeoutSecs : 1200;
+	public Integer getSessionTimeoutSeconds() {
+		return sessionTimeoutSeconds;
 	}
 
-	public void setSessionTimeoutSecs(Integer time) {
+	public void setSessionTimeoutSeconds(Integer time) {
 	}
 
 	public void setDescription(String description) {
@@ -185,8 +199,7 @@ public class PaymentPageBean implements Serializable {
 	}
 
 	public void setSelectedCard(CreditCardEntity selectedCard) {
-		LOG.debugf("Oare trimite ceva ? %s",selectedCard);
+		LOG.debugf("Oare trimite ceva ? %s", selectedCard);
 		this.selectedCard = selectedCard;
 	}
-
 }

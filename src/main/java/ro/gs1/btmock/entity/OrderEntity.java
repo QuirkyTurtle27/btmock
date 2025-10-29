@@ -34,7 +34,7 @@ public class OrderEntity extends PanacheMongoEntity {
 
     // === Status lifecycle ===
     public String status = "CREATED";
-    public long createdAt = System.currentTimeMillis();
+    public Long createdAt = System.currentTimeMillis();
     public Date creationDate;
 
     // === Extended status ===
