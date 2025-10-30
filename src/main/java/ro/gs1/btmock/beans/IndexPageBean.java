@@ -2,6 +2,7 @@ package ro.gs1.btmock.beans;
 
 import java.util.List;
 
+import io.quarkus.panache.common.Sort;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Named;
@@ -18,7 +19,7 @@ public class IndexPageBean {
     @PostConstruct
     public void init() {
         creditCards = CreditCardEntity.listAll();
-        orders = OrderEntity.listAll();
+        orders = OrderEntity.listAll(Sort.descending("createdAt"));
     }
 
     public List<CreditCardEntity> getCreditCards() {

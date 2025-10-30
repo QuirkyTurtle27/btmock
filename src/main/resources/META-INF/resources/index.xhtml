@@ -15,7 +15,7 @@
                          stripedRows="true"
                          responsiveLayout="scroll">
                 <p:column headerText="Order ID">
-                    <p:link id="orderLink" href="/orderView.xhtml" value="#{order.orderId}" />
+                    <p:link id="orderLink" href="/orderView.xhtml?order=#{order.orderId}" value="#{order.orderId}" />
                 </p:column>
                 <p:column headerText="Order Number">
                     <h:outputText value="#{order.orderNumber}" />

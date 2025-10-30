@@ -6,10 +6,10 @@ import java.util.List;
 
 import org.jboss.logging.Logger;
 
-import jakarta.enterprise.context.RequestScoped;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.AjaxBehaviorEvent;
+import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import ro.gs1.btmock.entity.CreditCardEntity;
@@ -17,7 +17,7 @@ import ro.gs1.btmock.entity.OrderEntity;
 import ro.gs1.btmock.paymentmethods.PaymentOutcomeSimulator;
 
 @Named
-@RequestScoped
+@ViewScoped
 public class PaymentPageBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -91,7 +91,7 @@ public class PaymentPageBean implements Serializable {
 	}
 
 	public void onCardSelected(AjaxBehaviorEvent event) {
-		LOG.debugf("Running ? ");
+		LOG.debugf("onCardSelected() - Start");
 		if (selectedCard == null)
 			return;
 
