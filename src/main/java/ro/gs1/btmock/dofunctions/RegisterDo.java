@@ -15,11 +15,15 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import ro.gs1.btmock.beans.EnvironmentBean;
 import ro.gs1.btmock.entity.OrderBundle;
 import ro.gs1.btmock.entity.OrderEntity;
 
 @Path("/payment/rest/register.do")
 public class RegisterDo {
+
+	@Inject
+	EnvironmentBean envB;
 
 	@Inject
 	Logger log;
@@ -103,7 +107,7 @@ public class RegisterDo {
 		}
 
 		String orderID = java.util.UUID.randomUUID().toString();
-		String baseUrl = "http://localhost:8080/PaymentPage.xhtml";
+		String baseUrl = envB.getBaseUri() + "/PaymentPage.xhtml";
 		String formURL = baseUrl + "?order=" + orderID + "&language=" + (language != null ? language : "ro");
 
 		OrderEntity order = new OrderEntity();

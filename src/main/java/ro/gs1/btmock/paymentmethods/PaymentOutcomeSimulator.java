@@ -16,7 +16,6 @@ public class PaymentOutcomeSimulator {
     @Inject
     Logger log;
 
-    // ---------- Public API ----------
 
     /** Simulate a payment using orderId (preferred). */
     public boolean simulateByOrderId(String orderId, String pan, String expiry, String cvv, String cardholderName) {
