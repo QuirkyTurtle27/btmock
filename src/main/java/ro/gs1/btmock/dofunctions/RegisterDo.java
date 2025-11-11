@@ -13,6 +13,7 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import ro.gs1.btmock.beans.EnvironmentBean;
@@ -33,7 +34,7 @@ public class RegisterDo {
 
 	@POST
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	public Response receiveIpayRegister(@FormParam("userName") String userName, @FormParam("password") String password,
+	public Response receiveIpayRegister(@QueryParam("userName") String userNameQuery, @FormParam("userName") String userNameForm, @QueryParam("password") String passwordQuery, @FormParam("password") String passwordForm,
 			@FormParam("orderNumber") String orderNumber, @FormParam("amount") String amount,
 			@FormParam("currency") String currency, @FormParam("returnUrl") String returnUrl,
 			@FormParam("description") String description, @FormParam("language") String language,
@@ -42,6 +43,9 @@ public class RegisterDo {
 			@FormParam("bindingId") String bindingId, @FormParam("sessionTimeoutSecs") String sessionTimeoutSecs,
 			@FormParam("expirationDate") String expirationDate, @FormParam("jsonParams") String jsonParamsStr,
 			@FormParam("orderBundle") String orderBundleStr) {
+
+		String userName = userNameForm != null && !userNameForm.isBlank() ? userNameForm : userNameQuery;
+		String password = passwordForm != null && !passwordForm.isBlank() ? passwordForm : passwordQuery;
 
 		if (orderNumber == null || orderNumber.trim().isEmpty()) {
 			return errorResponse(4, "Order number is empty");
