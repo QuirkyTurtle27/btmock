@@ -36,7 +36,7 @@ public class TestPageBean {
             form.orderNumber= orderNumber;
             form.amount     = "1200";
             form.currency   = "946";
-            form.returnUrl  = "https://yourdomain.ro/finish";
+            form.returnUrl  = "https://btmock.gs1.ro";
             form.description= description;
 
             // optional fields

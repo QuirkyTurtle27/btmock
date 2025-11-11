@@ -1,10 +1,12 @@
 package ro.gs1.btmock.beans;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
 
 import org.jboss.logging.Logger;
 
+import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
@@ -39,7 +41,14 @@ public class PaymentResultBean implements Serializable {
 	}
 
 	public void redirectToMerchant() {
-
+		try {
+			LOG.errorf("processPayment(): Payment failed for orderId=%s", orderId);
+			FacesContext context = FacesContext.getCurrentInstance();
+			ExternalContext ext = context.getExternalContext();
+			ext.redirect(merchantReturnUrl);
+		} catch (IOException e) {
+			LOG.error("processPayment(): Exception while redirecting to paymentfailed.xhtml", e);
+		}
 	}
 
 	public String getCardMaskedPan() {
@@ -47,7 +56,8 @@ public class PaymentResultBean implements Serializable {
 		return order != null ? order.cardMaskedPan : "N/A";
 	}
 
-	public void setCardMaskedPan() {}
+	public void setCardMaskedPan() {
+	}
 
 	public String getCardExpiration() {
 		return order != null ? order.cardExpiration : "N/A";
@@ -55,13 +65,14 @@ public class PaymentResultBean implements Serializable {
 
 	public String getCardholderName() {
 		return order != null ? order.cardholderName : "N/A";
-		}
+	}
 
 	public Long getAmount() {
 		return order != null ? order.amount : 0L;
 	}
 
-	public void setAmount() {};
+	public void setAmount() {
+	};
 
 	public String getMerchantReturnUrl() {
 		return merchantReturnUrl;

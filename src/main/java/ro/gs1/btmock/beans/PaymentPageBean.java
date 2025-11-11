@@ -38,6 +38,9 @@ public class PaymentPageBean implements Serializable {
 	@Inject
 	private PaymentOutcomeSimulator payBean;
 
+	@Inject
+	private EnvironmentBean envB;
+
 	public void actionViewInit() {
 		LOG.info("actionViewInit() - Start");
 		FacesContext facesContext = FacesContext.getCurrentInstance();
@@ -58,7 +61,7 @@ public class PaymentPageBean implements Serializable {
 				LOG.errorf("processPayment(): Payment failed for orderId=%s", orderId);
 				FacesContext context = FacesContext.getCurrentInstance();
 				ExternalContext ext = context.getExternalContext();
-				ext.redirect(ext.getRequestContextPath() + "/paymentfailed.xhtml?order=" + orderId);
+				ext.redirect(envB.getBaseUri() + "/paymentfailed.xhtml?order=" + orderId);
 			} catch (IOException e) {
 				LOG.error("processPayment(): Exception while redirecting to paymentfailed.xhtml", e);
 			}
@@ -69,12 +72,15 @@ public class PaymentPageBean implements Serializable {
 
 	public void actionPay() {
 		try {
-			payBean.simulateByOrderId(orderId, cardNumber, cardExpiration, cardSecurity, cardholderName);
-			LOG.errorf("processPayment(): Payment failed for orderId=%s", orderId);
+			if(payBean.simulateByOrderId(orderId, cardNumber, cardExpiration, cardSecurity, cardholderName)) {
+				LOG.errorf("processPayment(): Payment failed for orderId=%s", orderId);
+				FacesContext context = FacesContext.getCurrentInstance();
+				ExternalContext ext = context.getExternalContext();
+				ext.redirect(envB.getBaseUri() + "/successPage.xhtml?order=" + orderId);
+			} else{LOG.errorf("processPayment(): Payment failed for orderId=%s", orderId);
 			FacesContext context = FacesContext.getCurrentInstance();
 			ExternalContext ext = context.getExternalContext();
-			ext.redirect(ext.getRequestContextPath() + "/paymentfailed.xhtml?order=" + orderId);
-
+			ext.redirect(envB.getBaseUri() + "/paymentfailed.xhtml?order=" + orderId);}
 		} catch (IOException e) {
 			LOG.error("processPayment(): Exception while redirecting to paymentfailed.xhtml", e);
 		}
@@ -84,7 +90,7 @@ public class PaymentPageBean implements Serializable {
 		try {
 			FacesContext context = FacesContext.getCurrentInstance();
 			ExternalContext ext = context.getExternalContext();
-			ext.redirect(ext.getRequestContextPath() + "/paymentfailed.xhtml?order=" + orderId);
+			ext.redirect(envB.getBaseUri() + "/paymentfailed.xhtml?order=" + orderId);
 		} catch (IOException e) {
 			LOG.error("processPayment(): Exception while redirecting to paymentfailed.xhtml", e);
 		}
