@@ -34,7 +34,7 @@ public class OrderEntity extends PanacheMongoEntity {
 
     // === Status lifecycle ===
     public String status = "CREATED";
-    public long createdAt = System.currentTimeMillis();
+    public Long createdAt = System.currentTimeMillis();
     public Date creationDate;
 
     // === Extended status ===
@@ -62,14 +62,12 @@ public class OrderEntity extends PanacheMongoEntity {
     public String terminalId;
     public String ip;
 
-    // === Missing pieces from 6.7.1 ===
-
     // bindingInfo (Card-on-File / network token details)
-    public String cardArtUrl;              // optional MC
-    public String cardArtPicture;          // optional Visa (base64 PNG)
-    public String cardArtForegroundColor;  // optional Visa (RGB hex)
-    public String bin;                     // first 6 digits
-    public String panLastFour;             // last 4 digits
+    public String cardArtUrl;
+    public String cardArtPicture;
+    public String cardArtForegroundColor;
+    public String bin;
+    public String panLastFour;
 
     // merchantOrderParams (list of name/value)
     public List<Map<String, String>> merchantOrderParams;

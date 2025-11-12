@@ -1,0 +1,233 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://xmlns.jcp.org/jsf/html"
+   xmlns:p="http://primefaces.org/ui" xmlns:f="http://xmlns.jcp.org/jsf/core"
+   xmlns:ui="http://xmlns.jcp.org/jsf/facelets" template="/template/layout.xhtml">
+
+   <f:metadata>
+      <f:viewAction action="#{orderViewBean.actionViewInit}" />
+   </f:metadata>
+
+   <ui:define name="title">
+        View Order
+    </ui:define>
+
+   <ui:define name="content">
+      <h:form id="orderForm">
+         <p:growl id="msgs" showDetail="true" life="6000" />
+
+         <p:card styleClass="mb-3">
+            <f:facet name="title">
+                    Order <strong>#{orderViewBean.order.orderNumber}</strong>
+            </f:facet>
+
+            <div class="grid">
+               <div class="col-12 md:col-8">
+                  <p:panelGrid columns="2" columnClasses="w-12 md:w-4,w-12 md:w-8" styleClass="w-full">
+                     <h:outputText value="Order ID" />
+                     <h:outputText value="#{orderViewBean.order.orderId}" />
+
+                     <h:outputText value="Status" />
+                     <h:panelGroup>
+                        <p:tag severity="#{orderViewBean.statusSeverity}" value="#{orderViewBean.order.status}"
+                           rounded="true" />
+                        <h:outputText value=" " />
+                        <h:outputText rendered="#{not empty orderViewBean.order.actionCodeDescription}"
+                           value="(#{orderViewBean.order.actionCodeDescription})" />
+                     </h:panelGroup>
+
+                     <h:outputText value="Amount" />
+                     <h:outputText value="#{orderViewBean.formattedAmount} #{orderViewBean.currencyCode}">
+                        <!-- If you prefer raw, use order.amount and order.currency -->
+                     </h:outputText>
+
+                     <h:outputText value="Created" />
+                     <h:panelGroup>
+                        <h:outputText value="#{orderViewBean.order.creationDate}">
+                           <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" />
+                        </h:outputText>
+                     </h:panelGroup>
+
+                     <h:outputText value="Return URL" />
+                     <h:outputLink value="#{orderViewBean.order.returnUrl}" target="_blank">
+                                #{orderViewBean.order.returnUrl}
+                            </h:outputLink>
+
+                     <h:outputText value="Form URL" rendered="#{not empty orderViewBean.order.formUrl}" />
+                     <h:panelGroup rendered="#{not empty orderViewBean.order.formUrl}">
+                        <h:outputLink value="#{orderViewBean.order.formUrl}" target="_blank">
+                                    #{orderViewBean.order.formUrl}
+                                </h:outputLink>
+                     </h:panelGroup>
+                  </p:panelGrid>
+               </div>
+
+               <!-- Actions -->
+               <div class="col-12 md:col-4">
+                  <div class="flex flex-column gap-2">
+                     <p:commandButton id="refundBtn" value="Refund" icon="pi pi-undo"
+                        styleClass="ui-button-danger w-full" type="button" onclick="PF('refundDialog').show();"
+                        rendered="#{orderViewBean.isRefundEnabled()}" />
+
+                     <p:commandButton id="moreInfoBtn" value="Get additional information" icon="pi pi-search"
+                        styleClass="ui-button-secondary w-full" actionListener="#{orderViewBean.fetchExtendedInfo()}"
+                        process="@this"
+                        update=":orderForm:msgs :orderForm:extendedInfoPanel :orderForm:extendedInfoCard"
+                        disabled="#{orderViewBean.extendedInfoInFlight}">
+                        <p:ajax />
+                     </p:commandButton>
+                  </div>
+               </div>
+            </div>
+         </p:card>
+
+         <p:card id="extendedInfoCard" styleClass="mb-3">
+            <f:facet name="title">Extended Information (raw JSON)</f:facet>
+
+            <p:outputPanel id="extendedInfoPanel">
+               <p:inputTextarea value="#{orderViewBean.extendedInfoJson}" readonly="true" rows="20" autoResize="false"
+                  style="width:100%; font-family:monospace;" />
+            </p:outputPanel>
+         </p:card>
+         <!-- Description / Email -->
+         <p:card styleClass="mb-3">
+            <div class="grid">
+               <div class="col-12 md:col-8">
+                  <p:panelGrid columns="2" columnClasses="w-12 md:w-3,w-12 md:w-9" styleClass="w-full">
+                     <h:outputText value="Description" />
+                     <h:outputText value="#{orderViewBean.order.description}" />
+
+                     <h:outputText value="Email" />
+                     <h:outputText value="#{orderViewBean.order.email}" />
+                  </p:panelGrid>
+               </div>
+               <div class="col-12 md:col-4">
+                  <p:panelGrid columns="2" columnClasses="w-6,w-6" layout="grid" id="amountsPanel">
+                     <p:panel header="Amounts" styleClass="w-full">
+                        <p:panelGrid columns="2" styleClass="w-full">
+                           <h:outputText value="Approved" />
+                           <h:outputText
+                              value="#{orderViewBean.formatMinor(orderViewBean.order.paymentApprovedAmount)} #{orderViewBean.currencyCode}" />
+
+                           <h:outputText value="Deposited" />
+                           <h:outputText
+                              value="#{orderViewBean.formatMinor(orderViewBean.order.paymentDepositedAmount)} #{orderViewBean.currencyCode}" />
+
+                           <h:outputText value="Refunded" />
+                           <h:outputText
+                              value="#{orderViewBean.formatMinor(orderViewBean.order.paymentRefundedAmount)} #{orderViewBean.currencyCode}" />
+                        </p:panelGrid>
+                     </p:panel>
+                  </p:panelGrid>
+               </div>
+            </div>
+         </p:card>
+
+         <p:accordionPanel multiple="true" activeIndex="0" id="detailsAccordion">
+            <p:tab title="Card">
+               <p:panelGrid columns="2" columnClasses="w-4,w-8" styleClass="w-full">
+                  <h:outputText value="Masked PAN" />
+                  <h:outputText value="#{orderViewBean.order.cardMaskedPan}" />
+
+                  <h:outputText value="Expiration" />
+                  <h:outputText value="#{orderViewBean.order.cardExpiration}" />
+
+                  <h:outputText value="Cardholder" />
+                  <h:outputText value="#{orderViewBean.order.cardholderName}" />
+
+                  <h:outputText value="Approval Code" />
+                  <h:outputText value="#{orderViewBean.order.approvalCode}" />
+
+                  <h:outputText value="ECI" />
+                  <h:outputText value="#{orderViewBean.order.eci}" />
+               </p:panelGrid>
+            </p:tab>
+
+            <p:tab title="Bank">
+               <p:panelGrid columns="2" columnClasses="w-4,w-8" styleClass="w-full">
+                  <h:outputText value="Bank Name" />
+                  <h:outputText value="#{orderViewBean.order.bankName}" />
+
+                  <h:outputText value="Country Code" />
+                  <h:outputText value="#{orderViewBean.order.bankCountryCode}" />
+
+                  <h:outputText value="Country Name" />
+                  <h:outputText value="#{orderViewBean.order.bankCountryName}" />
+               </p:panelGrid>
+            </p:tab>
+
+            <p:tab title="Attributes">
+               <p:panelGrid columns="2" columnClasses="w-4,w-8" styleClass="w-full">
+                  <h:outputText value="mdOrder" />
+                  <h:outputText value="#{orderViewBean.order.attributeMdOrder}" />
+
+                  <h:outputText value="authRefNum" />
+                  <h:outputText value="#{orderViewBean.order.authRefNum}" />
+
+                  <h:outputText value="Terminal ID" />
+                  <h:outputText value="#{orderViewBean.order.terminalId}" />
+
+                  <h:outputText value="IP" />
+                  <h:outputText value="#{orderViewBean.order.ip}" />
+               </p:panelGrid>
+            </p:tab>
+
+            <p:tab title="Binding / Token">
+               <p:panelGrid columns="2" columnClasses="w-4,w-8" styleClass="w-full">
+                  <h:outputText value="Binding ID" />
+                  <h:outputText value="#{orderViewBean.order.bindingId}" />
+
+                  <h:outputText value="BIN" />
+                  <h:outputText value="#{orderViewBean.order.bin}" />
+
+                  <h:outputText value="Last 4" />
+                  <h:outputText value="#{orderViewBean.order.panLastFour}" />
+               </p:panelGrid>
+            </p:tab>
+
+            <p:tab title="Order Bundle / JSON Params" rendered="#{not empty orderViewBean.bundleSummary}">
+               <pre style="white-space: pre-wrap;">#{orderViewBean.bundleSummary}</pre>
+            </p:tab>
+
+            <p:tab title="Refunds History">
+               <p:dataTable id="refundsTable" var="refund" value="#{orderViewBean.order.refunds}"
+                  emptyMessage="No refunds yet." styleClass="w-full">
+                  <p:column headerText="ID">
+                     <h:outputText value="#{refund['id']}" />
+                  </p:column>
+                  <p:column headerText="Amount">
+                     <h:outputText value="#{orderViewBean.formatMinor(refund['amount'])} #{orderViewBean.currencyCode}" />
+                  </p:column>
+                  <p:column headerText="Date">
+                     <h:outputText value="#{refund['date']}" />
+                  </p:column>
+                  <p:column headerText="Status">
+                     <h:outputText value="#{refund['status']}" />
+                  </p:column>
+               </p:dataTable>
+            </p:tab>
+         </p:accordionPanel>
+
+         <!-- Confirm Refund Dialog -->
+         <p:dialog widgetVar="refundDialog" header="Refund order" modal="true" closable="true" responsive="true">
+            <h:panelGrid columns="2" columnClasses="w-6,w-6" styleClass="w-full" style="min-width:320px">
+               <h:outputText value="Refundable max" />
+               <h:outputText
+                  value="#{orderViewBean.formatMinor(orderViewBean.refundableMinor)} #{orderViewBean.currencyCode}">
+                  <f:attribute name="refundableMinor" value="#{orderViewBean.refundableMinor}" />
+               </h:outputText>
+
+               <h:outputText value="Amount to refund" />
+               <p:inputNumber id="refundAmount" value="#{orderViewBean.refundAmount}" decimalPlaces="2" minValue="0"
+                  thousandSeparator="," decimalSeparator="." required="true" requiredMessage="Please enter an amount." />
+            </h:panelGrid>
+
+            <f:facet name="footer">
+               <p:commandButton value="Refund" icon="pi pi-check" actionListener="#{orderViewBean.performRefund}"
+                  update=":orderForm:msgs :orderForm:amountsPanel :orderForm:refundsTable"
+                  oncomplete="if (!args.validationFailed) PF('refundDialog').hide();" styleClass="ui-button-danger" />
+               <p:commandButton value="Cancel" type="button" onclick="PF('refundDialog').hide()"
+                  styleClass="ui-button-secondary" />
+            </f:facet>
+         </p:dialog>
+      </h:form>
+   </ui:define>
+</ui:composition>

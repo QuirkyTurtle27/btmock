@@ -1,10 +1,12 @@
 package ro.gs1.btmock.beans;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
 
 import org.jboss.logging.Logger;
 
+import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
@@ -15,7 +17,7 @@ import ro.gs1.btmock.entity.OrderEntity;
 public class PaymentResultBean implements Serializable {
 
 	private static final long serialVersionUID = 2455747052202290966L;
-	private static final Logger LOG = Logger.getLogger(PaymentPageBean.class);
+	private static final Logger LOG = Logger.getLogger(PaymentResultBean.class);
 	private OrderEntity order;
 	private String merchantReturnUrl;
 	private String orderId;
@@ -29,33 +31,48 @@ public class PaymentResultBean implements Serializable {
 		if (orderId != null && !orderId.isBlank()) {
 			order = OrderEntity.find("orderId", orderId).firstResult();
 			LOG.infof("ActionViewInit() - the amount is: %s", order);
+			merchantReturnUrl = order.returnUrl;
 		} else {
 			LOG.warn("ActionViewInit() - No order ID provided.");
+			merchantReturnUrl = "/testPage.xhtml";
 		}
-		merchantReturnUrl = order.returnUrl;
 		Date now = new Date();
 		setDate(now);
 	}
 
-	public String getCardMaskedPan() {
-		return order != null ? order.cardMaskedPan : "";
+	public void redirectToMerchant() {
+		try {
+			LOG.errorf("processPayment(): Payment failed for orderId=%s", orderId);
+			FacesContext context = FacesContext.getCurrentInstance();
+			ExternalContext ext = context.getExternalContext();
+			ext.redirect(merchantReturnUrl);
+		} catch (IOException e) {
+			LOG.error("processPayment(): Exception while redirecting to paymentfailed.xhtml", e);
+		}
 	}
 
-	public void setCardMaskedPan() {}
+	public String getCardMaskedPan() {
+		LOG.debugf("Functioneaza probabil");
+		return order != null ? order.cardMaskedPan : "N/A";
+	}
+
+	public void setCardMaskedPan() {
+	}
 
 	public String getCardExpiration() {
-		return order != null ? order.cardExpiration : "";
+		return order != null ? order.cardExpiration : "N/A";
 	}
 
 	public String getCardholderName() {
-		return order != null ? order.cardholderName : "";
-		}
+		return order != null ? order.cardholderName : "N/A";
+	}
 
 	public Long getAmount() {
 		return order != null ? order.amount : 0L;
 	}
 
-	public void setAmount() {};
+	public void setAmount() {
+	};
 
 	public String getMerchantReturnUrl() {
 		return merchantReturnUrl;

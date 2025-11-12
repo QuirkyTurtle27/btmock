@@ -1,7 +1,6 @@
 package ro.gs1.btmock.dofunctions;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -177,16 +176,7 @@ public class OrderStatusExtendedDo {
         if (v != null) m.put(k, v);
     }
 
-    private static void addAttributeIfPresent(List<Map<String, Object>> list, String name, String value) {
-        if (value != null) list.add(Map.of("name", name, "value", value));
-    }
-
     private static Object getJson(OrderEntity order, String key) {
         return (order.jsonParams != null) ? order.jsonParams.get(key) : null;
-    }
-
-    private static String strJson(OrderEntity order, String key) {
-        Object v = getJson(order, key);
-        return v != null ? String.valueOf(v) : null;
     }
 }
