@@ -25,5 +25,5 @@ services:
     ports:
       - "8080:8080"
     environment:
-      APP_BASE_URI: beta.gs1.ro
+      APP_BASE_URI: https://btmock.gs1.ro
       QUARKUS_MONGODB_CONNECTION_STRING: mongodb://gs1dev:admin@mongodb:27017
