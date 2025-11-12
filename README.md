@@ -1,66 +1,98 @@
-# getting-started
+# btmock
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+## Project Overview
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+**btmock** is a lightweight web platform designed to **simulate the final stages of a payment flow**, specifically the post-transaction result screen that a user would see after being redirected from a bank or payment processor. Its primary purpose is to support **end-to-end integration testing** of payment handling flows, with a focus on:
 
-## Running the application in dev mode
+* Displaying payment success or failure messages in a web UI
+* Redirecting back to the merchant after a simulated result
+* Emulating common **bank-side error responses and statuses**
+* Validating how frontends handle edge cases like expired cards, incorrect CVV, or unavailable PSPs
 
-You can run your application in dev mode that enables live coding using:
+This is not a real payment processor—it is a **mock result frontend**, helping teams test redirect-based flows and **verify integration robustness** without hitting real banking systems.
 
-```shell script
-./mvnw quarkus:dev
+## Quick Start
+
+1. **Prerequisites:** Java 17+, Maven 3.9+
+2. **Clone and Run in Dev Mode:**
+
+   ```bash
+   git clone https://github.com/QuirkyTurtle27/btmock.git
+   cd btmock
+   mvn clean install quarkus:dev
+   ```
+3. **Access App:** Open [http://localhost:8080](http://localhost:8080) in your browser.
+
+## Features
+
+* JSF-based result screens (PrimeFaces UI) for:
+
+  * **Payment Success**
+  * **Payment Failure**
+* Auto-redirect to merchant return URL (configurable)
+* Customizable failure reasons (e.g. `invalid expiry date`, `insufficient funds`)
+* Displays test metadata:
+
+  * Card masked PAN, expiration, cardholder name
+  * Transaction timestamp and amount
+  * Merchant name and description
+
+## Technologies Used
+
+* **Quarkus 3** – Cloud-native Java framework optimized for fast startup and low memory usage. Used here to power the backend application logic, dependency injection, and configuration handling.
+* **Jakarta EE (CDI, Faces, JPA)** – Core Java EE APIs used for defining beans, lifecycle management, and (optionally) persistence. CDI is used to wire backing beans and services cleanly.
+* **PrimeFaces 15** – Rich UI component library for JSF. Used for rendering result screens with styled components like panels, buttons, messages, and icons.
+* **Jakarta Faces (JSF)** – Component-based UI framework. Enables server-side rendering of XHTML views. JSF pages are linked to managed beans (`@Named`) that control logic and hold state.
+* **H2 (or Quarkus Dev Services)** – In-memory development database support, if needed for storing simulated transaction state.
+* **Maven** – Build and dependency management tool. Used to compile, package, and run the application.
+* **Quarkus PrimeFaces Extension (quarkiverse)** – Allows JSF (Apache MyFaces) to run natively inside Quarkus, enabling seamless integration between JSF UI and modern backend services.
+
+## Architecture
+
+* **Front-end:** PrimeFaces (Facelets/XHTML)
+* **Back-end:** Quarkus 3 (Jakarta EE 10, CDI, JPA)
+* **Persistence:** H2 or dev-services-based temporary storage
+* **Display Flow:** Based on a `paymentResultBean`, which injects simulated values and controls redirect logic
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant Bank
+  participant btmock
+  participant Merchant
+  User->>Bank: Submit payment
+  Bank-->>btmock: Redirect to result page
+  btmock-->>User: Show success/failure
+  btmock-->>Merchant: Auto-redirect (or via button)
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+## Configuration
 
-## Packaging and running the application
+Edit `src/main/resources/application.properties`:
 
-The application can be packaged using:
-
-```shell script
-./mvnw package
+```properties
+quarkus.http.port=8080
+payment.merchant.return-url=http://merchant.local/return
 ```
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+To simulate different outcomes, extend `paymentResultBean` logic or add query parameters to mock various errors.
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+## Development Tips
 
-If you want to build an _über-jar_, execute the following command:
+* Run in dev mode with hot reload: `mvn quarkus:dev`
+* Debug on port `5005`
+* Use PrimeFaces `p:commandButton`, `p:panel` for visual feedback
+* Customize error text, icons, and transaction display
 
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
-```
+## Testing Scenarios
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+Use btmock to validate how your integration handles:
 
-## Creating a native executable
+* Failed payment redirects (with messages)
+* Success confirmations with transaction metadata
+* Browser-based return flows from banks
+* Edge cases: expired card, network error, invalid signature
 
-You can create a native executable using:
+## ADR Notes
 
-```shell script
-./mvnw package -Dnative
-```
-
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
-
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./target/getting-started-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
-
-## Related Guides
-
-- REST ([guide](https://quarkus.io/guides/rest)): A Jakarta REST implementation utilizing build time processing and Vert.x. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it.
-
-## Provided Code
-
-### REST
-
-Easily start your REST Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+This project uses a layered CDI structure and Quarkus Dev Services to remain lightweight and fast. Decisions around using Quarkus + PrimeFaces instead of SPA frameworks are recorded in `/docs/adr/` (if maintained).
