@@ -42,6 +42,6 @@ public class EnvironmentBean {
 		}
 
 		  LOG.debug("getBaseUri()- using fallback");
-		return "http://localhost:8080";
+		return "https://btmock.gs1.ro";
 	}
 }

@@ -98,7 +98,7 @@ public class RegisterDo {
 		Integer currencyValue = (currency != null && !currency.isEmpty()) ? Integer.parseInt(currency) : null;
 		Integer sessionTimeout = (sessionTimeoutSecs != null && !sessionTimeoutSecs.isEmpty())
 				? Integer.parseInt(sessionTimeoutSecs)
-				: null;
+				: 600;
 		Map<String, Object> jsonParams = null;
 		if (jsonParamsStr != null && !jsonParamsStr.isEmpty()) {
 			try {

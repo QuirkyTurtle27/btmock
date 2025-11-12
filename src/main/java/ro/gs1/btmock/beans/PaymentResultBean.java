@@ -31,7 +31,7 @@ public class PaymentResultBean implements Serializable {
 		if (orderId != null && !orderId.isBlank()) {
 			order = OrderEntity.find("orderId", orderId).firstResult();
 			LOG.infof("ActionViewInit() - the amount is: %s", order);
-			merchantReturnUrl = order.returnUrl;
+			merchantReturnUrl = order.returnUrl + "?orderId=" + orderId;
 		} else {
 			LOG.warn("ActionViewInit() - No order ID provided.");
 			merchantReturnUrl = "/testPage.xhtml";

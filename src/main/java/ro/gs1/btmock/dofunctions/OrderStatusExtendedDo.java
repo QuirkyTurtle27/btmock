@@ -14,7 +14,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import ro.gs1.btmock.entity.OrderEntity;
 
-@Path("/payment/rest/extendedRegister.do")
+@Path("/payment/rest/getOrderStatusExtended.do")
 @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 @Produces(MediaType.APPLICATION_JSON)
 public class OrderStatusExtendedDo {
