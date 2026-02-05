@@ -154,7 +154,7 @@ public class OrderViewBean implements Serializable {
 				bodyMap.put("orderNumber", orderNumberToUse);
 			String body = formEncode(bodyMap);
 
-			String url = getAppBaseUrl() + "/payment/rest/extendedRegister.do";
+			String url = getAppBaseUrl() + "/payment/rest/getOrderStatusExtended.do";
 
 			HttpClient client = HttpClient.newHttpClient();
 			HttpRequest request = HttpRequest.newBuilder(URI.create(url))
