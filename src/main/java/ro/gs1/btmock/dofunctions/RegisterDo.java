@@ -67,7 +67,7 @@ public class RegisterDo {
 		if (returnUrl == null || returnUrl.trim().isEmpty()) {
 			return errorResponse(4, "Empty return URL");
 		}
-		if (!returnUrl.startsWith("http://") && !returnUrl.startsWith("https://")) {
+		if (!returnUrl.startsWith("http://") && !returnUrl.startsWith("https://") && !returnUrl.startsWith("localhost:8080/")) {
 			return errorResponse(4, "Invalid return URL");
 		}
 		if (userName == null || userName.trim().isEmpty()) {
