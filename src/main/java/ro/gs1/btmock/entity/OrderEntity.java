@@ -31,6 +31,7 @@ public class OrderEntity extends PanacheMongoEntity {
     public Map<String, Object> jsonParams;
     public OrderBundle orderBundle;
     public String formUrl;
+    public String merchantName;
 
     // === Status lifecycle ===
     public String status = "CREATED";

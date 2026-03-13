@@ -119,6 +119,10 @@ public class PaymentPageBean implements Serializable {
 		return sessionTimeoutSeconds;
 	}
 
+	public String getMerchantName() {
+		return order != null ? order.merchantName : "NoName";
+	}
+
 	public void setSessionTimeoutSeconds(Integer time) {
 	}
 
