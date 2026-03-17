@@ -47,6 +47,7 @@ public class RegisterDo {
 
 		String userName = userNameForm != null && !userNameForm.isBlank() ? userNameForm : userNameQuery;
 		String password = passwordForm != null && !passwordForm.isBlank() ? passwordForm : passwordQuery;
+		log.debugf("Request received, merchant logged in with password:%s, userName:%s", password, userName);
 
 		if (orderNumber == null || orderNumber.trim().isEmpty()) {
 			return errorResponse(4, "Order number is empty");

@@ -16,8 +16,8 @@ public class MerchantSeeder {
     private static final Logger log = Logger.getLogger(MerchantSeeder.class);
 
     private static final List<MerchantEntity> SEED_MERCHANTS = List.of(
-        new MerchantEntity("userds", "parolads", "Asociatia GS1 Romania"),
-        new MerchantEntity("usergs1", "parola2", "GS1Data Systems"),
+        new MerchantEntity("userds", "parolads", "GS1Data Systems"),
+        new MerchantEntity("usergs1", "parola2", "Asociatia GS1 Romania"),
         new MerchantEntity("userdex", "paroladex", "GS1Data Exchange")
     );
 
