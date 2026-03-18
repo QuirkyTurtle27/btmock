@@ -115,7 +115,7 @@ public class PaymentPageBean implements Serializable {
 		return order != null ? order.description : "";
 	}
 
-	public BigDecimal getAmountDecimal() {
+	public BigDecimal getAmount() {
 		if (order == null || order.amount == null) {
 			return BigDecimal.ZERO;
 		}
