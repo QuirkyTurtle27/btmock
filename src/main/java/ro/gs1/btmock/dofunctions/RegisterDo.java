@@ -17,6 +17,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import ro.gs1.btmock.beans.EnvironmentBean;
+import ro.gs1.btmock.entity.MerchantEntity;
 import ro.gs1.btmock.entity.OrderBundle;
 import ro.gs1.btmock.entity.OrderEntity;
 
@@ -46,6 +47,7 @@ public class RegisterDo {
 
 		String userName = userNameForm != null && !userNameForm.isBlank() ? userNameForm : userNameQuery;
 		String password = passwordForm != null && !passwordForm.isBlank() ? passwordForm : passwordQuery;
+		log.debugf("Request received, merchant logged in with password:%s, userName:%s", password, userName);
 
 		if (orderNumber == null || orderNumber.trim().isEmpty()) {
 			return errorResponse(4, "Order number is empty");
@@ -67,14 +69,19 @@ public class RegisterDo {
 		if (returnUrl == null || returnUrl.trim().isEmpty()) {
 			return errorResponse(4, "Empty return URL");
 		}
-		if (!returnUrl.startsWith("http://") && !returnUrl.startsWith("https://")) {
+		if (!returnUrl.startsWith("http://") && !returnUrl.startsWith("https://") && !returnUrl.startsWith("localhost:8080/")) {
 			return errorResponse(4, "Invalid return URL");
 		}
 		if (userName == null || userName.trim().isEmpty()) {
-			return errorResponse(4, "Empty merchant user name");
+		    return errorResponse(4, "Empty merchant user name");
 		}
 		if (password == null || password.trim().isEmpty()) {
-			return errorResponse(4, "Password cannot be empty");
+		    return errorResponse(4, "Password cannot be empty");
+		}
+		MerchantEntity merchant = MerchantEntity.find("userName = ?1 and password = ?2", userName, password).firstResult();
+
+		if (merchant == null) {
+		    return errorResponse(5, "Access denied");
 		}
 		if (description != null && (!description.matches("^[\\x20-\\x7D]*$") || description.contains("~"))) {
 			return errorResponse(11, "Wrong orderDescription param value");
@@ -150,6 +157,8 @@ public class RegisterDo {
 		order.bankName = "Banca Transilvania";
 		order.bankCountryCode = "RO";
 		order.bankCountryName = "Romania";
+		order.merchantName = merchant.merchantName;
+
 		order.persist();
 
 		Map<String, String> response = new HashMap<>();

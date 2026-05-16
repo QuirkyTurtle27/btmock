@@ -31,8 +31,8 @@ public class TestPageBean {
                     .replace("-", "").substring(0, 8);
 
             RegisterForm form = new RegisterForm();
-            form.userName   = "your_test_username";
-            form.password   = "your_test_password";
+            form.userName   = "usergs1";
+            form.password   = "parola2";
             form.orderNumber= orderNumber;
             form.amount     = "1200";
             form.currency   = "946";

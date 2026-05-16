@@ -2,6 +2,7 @@ package ro.gs1.btmock.beans;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.jboss.logging.Logger;
@@ -53,7 +54,8 @@ public class PaymentPageBean implements Serializable {
 			return;
 		}
 		if (System.currentTimeMillis() - order.createdAt < order.sessionTimeoutSecs * 1000) {
-			sessionTimeoutSeconds = Math.toIntExact(order.sessionTimeoutSecs - (System.currentTimeMillis() - order.createdAt) / 1000);
+			sessionTimeoutSeconds = Math
+					.toIntExact(order.sessionTimeoutSecs - (System.currentTimeMillis() - order.createdAt) / 1000);
 			LOG.infof("actionview() - order timeout %s", sessionTimeoutSeconds);
 		} else {
 			try {
@@ -72,15 +74,17 @@ public class PaymentPageBean implements Serializable {
 
 	public void actionPay() {
 		try {
-			if(payBean.simulateByOrderId(orderId, cardNumber, cardExpiration, cardSecurity, cardholderName)) {
+			if (payBean.simulateByOrderId(orderId, cardNumber, cardExpiration, cardSecurity, cardholderName)) {
 				LOG.errorf("processPayment(): Payment failed for orderId=%s", orderId);
 				FacesContext context = FacesContext.getCurrentInstance();
 				ExternalContext ext = context.getExternalContext();
 				ext.redirect(envB.getBaseUri() + "/successPage.xhtml?order=" + orderId);
-			} else{LOG.errorf("processPayment(): Payment failed for orderId=%s", orderId);
-			FacesContext context = FacesContext.getCurrentInstance();
-			ExternalContext ext = context.getExternalContext();
-			ext.redirect(envB.getBaseUri() + "/paymentfailed.xhtml?order=" + orderId);}
+			} else {
+				LOG.errorf("processPayment(): Payment failed for orderId=%s", orderId);
+				FacesContext context = FacesContext.getCurrentInstance();
+				ExternalContext ext = context.getExternalContext();
+				ext.redirect(envB.getBaseUri() + "/paymentfailed.xhtml?order=" + orderId);
+			}
 		} catch (IOException e) {
 			LOG.error("processPayment(): Exception while redirecting to paymentfailed.xhtml", e);
 		}
@@ -111,12 +115,19 @@ public class PaymentPageBean implements Serializable {
 		return order != null ? order.description : "";
 	}
 
-	public Long getAmount() {
-		return order != null ? order.amount : 0L;
+	public BigDecimal getAmount() {
+		if (order == null || order.amount == null) {
+			return BigDecimal.ZERO;
+		}
+		return BigDecimal.valueOf(order.amount, 2);
 	}
 
 	public Integer getSessionTimeoutSeconds() {
 		return sessionTimeoutSeconds;
+	}
+
+	public String getMerchantName() {
+		return order != null ? order.merchantName : "NoName";
 	}
 
 	public void setSessionTimeoutSeconds(Integer time) {

@@ -2,6 +2,8 @@ package ro.gs1.btmock.beans;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Date;
 
 import org.jboss.logging.Logger;
@@ -31,7 +33,20 @@ public class PaymentResultBean implements Serializable {
 		if (orderId != null && !orderId.isBlank()) {
 			order = OrderEntity.find("orderId", orderId).firstResult();
 			LOG.infof("ActionViewInit() - the amount is: %s", order);
-			merchantReturnUrl = order.returnUrl + "?orderId=" + orderId;
+			URI uri = URI.create(order.returnUrl);
+
+			String existingQuery = uri.getQuery();
+			String newQuery = (existingQuery == null || existingQuery.isBlank()) ? "orderId=" + orderId
+					: existingQuery + "&orderId=" + orderId;
+
+			try {
+				URI updatedUri;
+
+				updatedUri = new URI(uri.getScheme(), uri.getAuthority(), uri.getPath(), newQuery, uri.getFragment());
+				merchantReturnUrl = updatedUri.toString();
+			} catch (URISyntaxException e) {
+				LOG.errorf("ActionVewInit() - the URI syntax is wrong", e);
+			}
 		} else {
 			LOG.warn("ActionViewInit() - No order ID provided.");
 			merchantReturnUrl = "/testPage.xhtml";

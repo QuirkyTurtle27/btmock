@@ -15,8 +15,8 @@ public class RegisterDoTest {
     public void testRegisterDoWithAllFields() {
         String url = "/payment/rest/register.do";
 
-        String userName = "your_test_username";
-        String password = "your_test_password";
+        String userName = "usergs1";
+        String password = "parola2";
 
         String orderNumber = "TEST-ORDER-" + java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 8);
         String amount = "1200";
