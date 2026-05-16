@@ -62,3 +62,14 @@ buildNumber.properties
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
 >>>>>>> 923295fc7980d17e4ff1d1e6103379fec5950e88
+thesis/ch7_limitations.md
+thesis/ch6_evaluation.md
+thesis/ch5_testing.md
+thesis/ch4_implementation.md
+thesis/ch3_architecture.md
+thesis/ch2_background.md
+thesis/ch1_introduction.md
+TECHNICAL_ANALYSIS.md
+IMPROVEMENTS_CHECKLIST.md
+conversation_about_app.txt
+
