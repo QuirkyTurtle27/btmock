@@ -74,12 +74,12 @@ public class PaymentPageBean implements Serializable {
 	public void actionPay() {
 		try {
 			if (payBean.simulateByOrderId(orderId, cardNumber, cardExpiration, cardSecurity, cardholderName)) {
-				LOG.errorf("processPayment(): Payment failed for orderId=%s", orderId);
+				LOG.infof("processPayment(): Payment succeeded for orderId=%s", orderId);
 				FacesContext context = FacesContext.getCurrentInstance();
 				ExternalContext ext = context.getExternalContext();
 				ext.redirect(envB.getBaseUri() + "/successPage.xhtml?order=" + orderId);
 			} else {
-				LOG.errorf("processPayment(): Payment failed for orderId=%s", orderId);
+				LOG.infof("processPayment(): Payment declined for orderId=%s", orderId);
 				FacesContext context = FacesContext.getCurrentInstance();
 				ExternalContext ext = context.getExternalContext();
 				ext.redirect(envB.getBaseUri() + "/paymentfailed.xhtml?order=" + orderId);
