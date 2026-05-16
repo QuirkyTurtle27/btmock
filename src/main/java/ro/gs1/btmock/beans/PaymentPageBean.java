@@ -59,8 +59,7 @@ public class PaymentPageBean implements Serializable {
 			LOG.infof("actionview() - order timeout %s", sessionTimeoutSeconds);
 		} else {
 			try {
-				payBean.simulateByOrderId(orderId, cardNumber, cardExpiration, cardSecurity, cardholderName);
-				LOG.errorf("processPayment(): Payment failed for orderId=%s", orderId);
+				LOG.infof("Session expired for orderId=%s - redirecting to failure", orderId);
 				FacesContext context = FacesContext.getCurrentInstance();
 				ExternalContext ext = context.getExternalContext();
 				ext.redirect(envB.getBaseUri() + "/paymentfailed.xhtml?order=" + orderId);
